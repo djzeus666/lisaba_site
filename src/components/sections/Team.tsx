@@ -7,7 +7,9 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { specialists, siteConfig } from "@/data/content";
 import { StaggerContainer, StaggerItem } from "@/components/ui/Reveal";
 
-export function Team() {
+export function Team({
+  specialists: people = specialists,
+}: { specialists?: typeof specialists } = {}) {
   return (
     <Section id="specialists" className="bg-accent-blue-light/12">
       <SectionHeader
@@ -17,7 +19,7 @@ export function Team() {
       />
 
       <StaggerContainer className="section-block grid-cards sm:grid-cols-2 lg:grid-cols-3">
-        {specialists.map((person) => (
+        {people.map((person) => (
           <StaggerItem key={person.id} className="h-full">
             <SpecialistCard person={person} />
           </StaggerItem>

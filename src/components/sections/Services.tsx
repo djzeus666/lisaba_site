@@ -27,10 +27,10 @@ const iconMap: Record<string, LucideIcon> = {
   heart: Heart,
 };
 
-export function Services() {
-  const [activeId, setActiveId] = useState(services[0].id);
+export function Services({ items = services }: { items?: typeof services } = {}) {
+  const [activeId, setActiveId] = useState(items[0]?.id ?? "");
   const cardRef = useRef<HTMLDivElement>(null);
-  const active = services.find((s) => s.id === activeId)!;
+  const active = items.find((s) => s.id === activeId) ?? items[0];
 
   const selectService = (id: string) => {
     setActiveId(id);
@@ -47,56 +47,64 @@ export function Services() {
         description="Индивидуальные программы, основанные на научных методах и многолетнем опыте"
       />
 
-      <Reveal delay={0.1} className="section-block">
-        <div
-          className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0"
-          role="tablist"
-          aria-label="Направления услуг"
-        >
-          {services.map((service) => {
-            const Icon = iconMap[service.icon];
-            const isActive = service.id === activeId;
-            return (
-              <PillButton
-                key={service.id}
-                role="tab"
-                aria-selected={isActive}
-                aria-controls="service-panel"
-                active={isActive}
-                onClick={() => selectService(service.id)}
-                className="max-w-[220px] shrink-0 sm:max-w-none"
-                title={service.title}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="truncate">{service.title}</span>
-              </PillButton>
-            );
-          })}
-        </div>
-      </Reveal>
+      {!items.length || !active ? (
+        <p className="section-block text-center text-sm text-brand-black/50">
+          Услуги скоро появятся
+        </p>
+      ) : (
+        <>
+          <Reveal delay={0.1} className="section-block">
+            <div
+              className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0"
+              role="tablist"
+              aria-label="Направления услуг"
+            >
+              {items.map((service) => {
+                const Icon = iconMap[service.icon] ?? Brain;
+                const isActive = service.id === activeId;
+                return (
+                  <PillButton
+                    key={service.id}
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls="service-panel"
+                    active={isActive}
+                    onClick={() => selectService(service.id)}
+                    className="max-w-[220px] shrink-0 sm:max-w-none"
+                    title={service.title}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{service.title}</span>
+                  </PillButton>
+                );
+              })}
+            </div>
+          </Reveal>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          ref={cardRef}
-          id="service-panel"
-          role="tabpanel"
-          key={activeId}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8 md:mt-10"
-        >
-          <ServiceCard service={active} />
-        </motion.div>
-      </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.div
+              ref={cardRef}
+              id="service-panel"
+              role="tabpanel"
+              key={activeId}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-8 md:mt-10"
+            >
+              <ServiceCard service={active} />
+            </motion.div>
+          </AnimatePresence>
+        </>
+      )}
     </Section>
   );
 }
 
 function ServiceCard({ service }: { service: (typeof services)[0] }) {
   const [expanded, setExpanded] = useState(false);
-  const Icon = iconMap[service.icon];
+  const Icon = iconMap[service.icon] ?? Brain;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-brand-blue/15 bg-gradient-to-br from-brand-white to-accent-blue-light/15 shadow-card">

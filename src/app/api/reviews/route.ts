@@ -1,69 +1,51 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
 import { NextResponse } from "next/server";
+import { getPayloadClient } from "@/lib/cms/payload";
 
 export const runtime = "nodejs";
 
-type ReviewPayload = {
-  name: string;
-  text: string;
-  rating: number;
-  phone?: string;
+type Body = {
+  name?: unknown;
+  text?: unknown;
+  rating?: unknown;
+  phone?: unknown;
 };
-
-type StoredReview = ReviewPayload & {
-  id: string;
-  createdAt: string;
-};
-
-function dataPath() {
-  return path.join(process.cwd(), "data", "review-submissions.json");
-}
-
-async function ensureStore(): Promise<StoredReview[]> {
-  const file = dataPath();
-  await mkdir(path.dirname(file), { recursive: true });
-  try {
-    const raw = await readFile(file, "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as Partial<ReviewPayload>;
-    const name = String(body.name ?? "").trim();
-    const text = String(body.text ?? "").trim();
-    const phone = String(body.phone ?? "").trim();
+    const body = (await request.json()) as Body;
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const text = typeof body.text === "string" ? body.text.trim() : "";
+    const phone = typeof body.phone === "string" ? body.phone.trim() : "";
     const rating = Number(body.rating);
 
-    if (!name || name.length < 2 || name.length > 80) {
-      return NextResponse.json({ error: "Укажите имя" }, { status: 400 });
+    if (name.length < 2 || name.length > 80) {
+      return NextResponse.json({ error: "Укажите имя (2–80 символов)" }, { status: 400 });
     }
-    if (!text || text.length < 10 || text.length > 2000) {
-      return NextResponse.json({ error: "Текст отзыва слишком короткий" }, { status: 400 });
+    if (text.length < 10 || text.length > 2000) {
+      return NextResponse.json({ error: "Текст отзыва: 10–2000 символов" }, { status: 400 });
     }
-    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
-      return NextResponse.json({ error: "Выберите оценку" }, { status: 400 });
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return NextResponse.json({ error: "Оценка должна быть от 1 до 5" }, { status: 400 });
     }
 
-    const reviews = await ensureStore();
-    const entry: StoredReview = {
-      id: crypto.randomUUID(),
-      name,
-      text,
-      rating: Math.round(rating),
-      phone: phone || undefined,
-      createdAt: new Date().toISOString(),
-    };
-    reviews.push(entry);
-    await writeFile(dataPath(), JSON.stringify(reviews, null, 2), "utf8");
+    const payload = await getPayloadClient();
+    const doc = await payload.create({
+      collection: "reviews",
+      data: {
+        type: "text",
+        name,
+        text,
+        rating,
+        phone: phone || undefined,
+        status: "draft",
+        source: "form",
+      },
+      overrideAccess: true,
+    });
 
-    return NextResponse.json({ ok: true });
-  } catch {
+    return NextResponse.json({ ok: true, id: doc.id });
+  } catch (err) {
+    console.error("reviews POST", err);
     return NextResponse.json({ error: "Не удалось сохранить отзыв" }, { status: 500 });
   }
 }

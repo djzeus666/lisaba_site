@@ -5,10 +5,15 @@ services:
     restart: unless-stopped
     ports:
       - "3080:3000"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/payload.db
     volumes:
-      - lisaba-reviews-data:/app/data
+      - lisaba-data:/app/data
+      - lisaba-media:/app/media
 
 volumes:
-  lisaba-reviews-data:
+  lisaba-data:
+  lisaba-media:

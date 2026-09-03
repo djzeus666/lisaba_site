@@ -13,7 +13,17 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { reviewImages, siteConfig } from "@/data/content";
 import { cn } from "@/lib/cn";
 
-export function Reviews() {
+type Props = {
+  images?: typeof reviewImages;
+  texts?: { id: string; name: string; text: string; rating?: number }[];
+  privacyPolicy?: string;
+};
+
+export function Reviews({
+  images = reviewImages,
+  texts = [],
+  privacyPolicy = siteConfig.privacyPolicy,
+}: Props) {
   const [active, setActive] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
@@ -24,9 +34,9 @@ export function Reviews() {
     if (active === null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setActive(null);
-      if (e.key === "ArrowRight") setActive((i) => (i === null ? i : (i + 1) % reviewImages.length));
+      if (e.key === "ArrowRight") setActive((i) => (i === null ? i : (i + 1) % images.length));
       if (e.key === "ArrowLeft") {
-        setActive((i) => (i === null ? i : (i - 1 + reviewImages.length) % reviewImages.length));
+        setActive((i) => (i === null ? i : (i - 1 + images.length) % images.length));
       }
     };
     document.body.style.overflow = "hidden";
@@ -35,7 +45,7 @@ export function Reviews() {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
     };
-  }, [active]);
+  }, [active, images.length]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,7 +87,7 @@ export function Reviews() {
 
       <Reveal delay={0.08} className="section-block">
         <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
-          {reviewImages.map((item, index) => (
+          {images.map((item, index) => (
             <button
               key={item.id}
               type="button"
@@ -98,6 +108,35 @@ export function Reviews() {
           ))}
         </div>
       </Reveal>
+
+      {texts.length > 0 && (
+        <Reveal delay={0.1} className="section-block">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {texts.map((review) => (
+              <article
+                key={review.id}
+                className="rounded-2xl border border-brand-black/8 bg-accent-blue-light/10 p-5 shadow-soft"
+              >
+                <div className="flex items-center gap-1" aria-label={`Оценка ${review.rating ?? 5}`}>
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "h-4 w-4",
+                        i < (review.rating ?? 5)
+                          ? "fill-brand-orange text-brand-orange"
+                          : "text-brand-black/20",
+                      )}
+                    />
+                  ))}
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-brand-black/75">{review.text}</p>
+                <p className="mt-4 text-sm font-semibold text-brand-black">{review.name}</p>
+              </article>
+            ))}
+          </div>
+        </Reveal>
+      )}
 
       <Reveal delay={0.12} className="mt-14 md:mt-16">
         <div className="mx-auto max-w-2xl">
@@ -209,7 +248,7 @@ export function Reviews() {
                 <p className="text-center text-xs leading-relaxed text-brand-black/45">
                   Нажимая кнопку, вы соглашаетесь с{" "}
                   <Link
-                    href={siteConfig.privacyPolicy}
+                    href={privacyPolicy}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-brand-blue underline-offset-2 hover:underline"
@@ -224,7 +263,7 @@ export function Reviews() {
       </Reveal>
 
       <AnimatePresence>
-        {active !== null && (
+        {active !== null && images[active] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -248,7 +287,7 @@ export function Reviews() {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setActive((i) => (i === null ? i : (i - 1 + reviewImages.length) % reviewImages.length));
+                setActive((i) => (i === null ? i : (i - 1 + images.length) % images.length));
               }}
               className="focus-ring absolute left-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 md:left-6"
               aria-label="Предыдущий отзыв"
@@ -257,7 +296,7 @@ export function Reviews() {
             </button>
 
             <motion.div
-              key={reviewImages[active].id}
+              key={images[active].id}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
@@ -265,8 +304,8 @@ export function Reviews() {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={reviewImages[active].src}
-                alt={reviewImages[active].alt}
+                src={images[active].src}
+                alt={images[active].alt}
                 width={900}
                 height={1200}
                 className="h-auto max-h-[85vh] w-auto object-contain"
@@ -279,7 +318,7 @@ export function Reviews() {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setActive((i) => (i === null ? i : (i + 1) % reviewImages.length));
+                setActive((i) => (i === null ? i : (i + 1) % images.length));
               }}
               className="focus-ring absolute right-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 md:right-6"
               aria-label="Следующий отзыв"

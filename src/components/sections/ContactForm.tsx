@@ -11,7 +11,9 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { siteConfig } from "@/data/content";
 import { Reveal } from "@/components/ui/Reveal";
 
-export function ContactForm() {
+export function ContactForm({
+  site = siteConfig,
+}: { site?: typeof siteConfig } = {}) {
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: FormEvent) => {
@@ -37,8 +39,8 @@ export function ContactForm() {
             <p className="text-lg font-semibold text-brand-black">Спасибо! Заявка отправлена.</p>
             <p className="mt-2 text-sm text-brand-black/60">
               Или позвоните нам:{" "}
-              <a href={siteConfig.phoneHref} className="font-semibold text-brand-blue">
-                {siteConfig.phone}
+              <a href={site.phoneHref} className="font-semibold text-brand-blue">
+                {site.phone}
               </a>
             </p>
           </motion.div>
@@ -71,7 +73,7 @@ export function ContactForm() {
               <p className="text-center text-xs leading-relaxed text-brand-black/45">
                 Нажимая кнопку, вы соглашаетесь с{" "}
                 <Link
-                  href={siteConfig.privacyPolicy}
+                  href={site.privacyPolicy}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-blue underline-offset-2 hover:underline"

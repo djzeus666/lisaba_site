@@ -28,7 +28,9 @@ const iconMap: Record<string, LucideIcon> = {
   climb: Mountain,
 };
 
-export function Equipment() {
+export function Equipment({
+  items = equipmentItems,
+}: { items?: typeof equipmentItems } = {}) {
   return (
     <Section id="equipment" className="bg-accent-blue-light/8">
       <SectionHeader
@@ -38,7 +40,7 @@ export function Equipment() {
       />
 
       <StaggerContainer className="section-block grid-cards sm:grid-cols-2 lg:grid-cols-4">
-        {equipmentItems.map((item) => {
+        {items.map((item) => {
           const Icon = iconMap[item.icon] ?? Box;
           return (
             <StaggerItem key={item.id} className="h-full">

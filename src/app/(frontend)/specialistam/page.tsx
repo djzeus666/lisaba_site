@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
+import { SimplePageBody } from "@/components/ui/SimplePageBody";
 import { InfoPageShell } from "@/components/ui/InfoPageShell";
 import { siteConfig } from "@/data/content";
+import { getPageBySlug } from "@/lib/cms/queries";
 
 export const metadata: Metadata = {
   title: "Специалистам",
   description: `Сотрудничество и профессиональное развитие для специалистов — ${siteConfig.name}`,
 };
 
-export default function ForSpecialistsPage() {
+function StaticSpecialistsContent() {
   return (
-    <InfoPageShell
-      eyebrow="Партнёрам"
-      title="Специалистам"
-      description="Приглашаем коллег к сотрудничеству, стажировкам и профессиональному обмену опытом."
-    >
+    <>
       <p>
         Если вы логопед, дефектолог, психолог, нейропсихолог или специалист по сенсорной
         интеграции — будем рады знакомству. В центре «{siteConfig.name}» можно обсудить
@@ -35,6 +33,24 @@ export default function ForSpecialistsPage() {
         </a>
         — расскажем о форматах сотрудничества.
       </p>
+    </>
+  );
+}
+
+export default async function ForSpecialistsPage() {
+  const page = await getPageBySlug("specialistam");
+  const hasCmsBody = Boolean(page?.body);
+
+  return (
+    <InfoPageShell
+      eyebrow={page?.eyebrow || "Партнёрам"}
+      title={page?.title || "Специалистам"}
+      description={
+        page?.description ||
+        "Приглашаем коллег к сотрудничеству, стажировкам и профессиональному обмену опытом."
+      }
+    >
+      {hasCmsBody && page?.body ? <SimplePageBody body={page.body} /> : <StaticSpecialistsContent />}
     </InfoPageShell>
   );
 }

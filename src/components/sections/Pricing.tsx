@@ -17,12 +17,12 @@ const filters: { id: Filter; label: string }[] = [
   { id: "classes", label: "Занятия" },
 ];
 
-export function Pricing() {
+export function Pricing({ items = pricing }: { items?: typeof pricing } = {}) {
   const [filter, setFilter] = useState<Filter>("all");
 
   const filtered = useMemo(
-    () => (filter === "all" ? pricing : pricing.filter((p) => p.category === filter)),
-    [filter],
+    () => (filter === "all" ? items : items.filter((p) => p.category === filter)),
+    [filter, items],
   );
 
   return (

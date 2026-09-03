@@ -17,8 +17,9 @@ import {
   SectionStruktura,
 } from "@/components/sections/providerBodies";
 import { ProviderShell } from "@/components/sections/ProviderShell";
+import { ProviderBlocksRenderer } from "@/components/sections/ProviderBlocksRenderer";
 import { providerNav } from "@/data/providerNav";
-import { siteConfig } from "@/data/content";
+import { getProviderNav, getProviderSection, getSiteSettings } from "@/lib/cms/queries";
 
 const bodies: Record<string, () => React.ReactNode> = {
   struktura: SectionStruktura,
@@ -47,10 +48,12 @@ export async function generateMetadata({
   params: Promise<{ section: string }>;
 }): Promise<Metadata> {
   const { section } = await params;
+  const [cms, site] = await Promise.all([getProviderSection(section), getSiteSettings()]);
   const item = providerNav.find((s) => s.id === section);
+  const title = cms?.title ?? item?.title ?? "Сведения";
   return {
-    title: item?.title ?? "Сведения",
-    description: `${item?.title ?? "Сведения"} — ${siteConfig.name}`,
+    title,
+    description: `${title} — ${site.name}`,
   };
 }
 
@@ -60,18 +63,31 @@ export default async function ProviderSectionPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
+  const [cms, navItems] = await Promise.all([
+    getProviderSection(section),
+    getProviderNav("social"),
+  ]);
   const item = providerNav.find((s) => s.id === section);
   const Body = bodies[section];
-  if (!item || !Body) notFound();
+
+  if (!item && !cms) notFound();
+  if (!cms && !Body) notFound();
+
+  const title = cms?.title ?? item!.title;
 
   return (
     <ProviderShell
       basePath="/svedeniya"
       currentId={section}
       eyebrow="Сведения о поставщике социальных услуг"
-      title={item.title}
+      title={title}
+      navItems={navItems}
     >
-      <Body />
+      {cms?.blocks?.length ? (
+        <ProviderBlocksRenderer blocks={cms.blocks} />
+      ) : Body ? (
+        <Body />
+      ) : null}
     </ProviderShell>
   );
 }

@@ -10,13 +10,17 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export function OsnovnyeContent() {
-  const org = organizationInfo;
-
+export function OsnovnyeContent({
+  org = organizationInfo,
+  rekvizityUrl = siteConfig.rekvizityUrl,
+}: {
+  org?: typeof organizationInfo;
+  rekvizityUrl?: string;
+} = {}) {
   return (
     <>
       <a
-        href={siteConfig.rekvizityUrl}
+        href={rekvizityUrl}
         download="rekvizity-nmc.txt"
         className="focus-ring inline-flex h-11 items-center justify-center gap-2 rounded-full border border-brand-black/12 bg-brand-white px-6 text-sm font-semibold text-brand-black/75 shadow-sm transition-all hover:border-brand-blue hover:text-brand-blue"
       >

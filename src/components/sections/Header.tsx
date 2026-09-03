@@ -5,15 +5,17 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useAccessibility } from "@/components/providers/AccessibilityProvider";
+import { useCms } from "@/components/providers/CmsProvider";
 import { LisabaLogoLink } from "@/components/ui/LisabaLogo";
 import { SocialLinks } from "@/components/ui/SocialLinks";
-import { navLinks, siteConfig, topBarLinks } from "@/data/content";
 import { cn } from "@/lib/cn";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { mode, toggle, isImpaired, isHighContrast } = useAccessibility();
+  const { site, nav } = useCms();
+  const { navLinks, topBarLinks } = nav;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -70,9 +72,9 @@ export function Header() {
         <div className="hidden shrink-0 items-center gap-1.5 justify-self-end xl:flex 2xl:gap-2">
           {/* Phone only on xl when TopBar address line is hidden */}
           <a
-            href={siteConfig.phoneHref}
+            href={site.phoneHref}
             className="focus-ring hidden h-9 w-9 items-center justify-center rounded-full bg-brand-black/6 text-brand-black/65 transition-all hover:bg-brand-blue/10 hover:text-brand-blue xl:inline-flex 2xl:hidden"
-            aria-label={`Позвонить: ${siteConfig.phone}`}
+            aria-label={`Позвонить: ${site.phone}`}
           >
             <Phone className="h-4 w-4" />
           </a>
@@ -98,7 +100,7 @@ export function Header() {
             <A11yIcon className="h-4 w-4 shrink-0" />
           </button>
 
-          <Button href={siteConfig.maxBooking} size="sm" className="shrink-0 whitespace-nowrap">
+          <Button href={site.maxBooking} size="sm" className="shrink-0 whitespace-nowrap">
             <span className="2xl:hidden">Записаться</span>
             <span className="hidden 2xl:inline">Записаться онлайн</span>
           </Button>
@@ -106,7 +108,7 @@ export function Header() {
 
         {/* Mobile / tablet: CTA + menu */}
         <div className="flex shrink-0 items-center gap-2 justify-self-end xl:hidden">
-          <Button href={siteConfig.maxBooking} size="sm" className="hidden sm:inline-flex">
+          <Button href={site.maxBooking} size="sm" className="hidden sm:inline-flex">
             Записаться
           </Button>
           <button
@@ -164,10 +166,10 @@ export function Header() {
             </div>
             <div className="mt-2 flex flex-col gap-2 border-t border-brand-black/8 pt-3">
               <a
-                href={siteConfig.phoneHref}
+                href={site.phoneHref}
                 className="flex h-11 items-center gap-3 whitespace-nowrap px-4 text-brand-black/75 tabular-nums"
               >
-                <Phone className="h-4 w-4 shrink-0" /> {siteConfig.phone}
+                <Phone className="h-4 w-4 shrink-0" /> {site.phone}
               </a>
               <SocialLinks variant="light" className="px-4" compact />
               <button
@@ -177,7 +179,7 @@ export function Header() {
               >
                 <A11yIcon className="h-4 w-4" /> {a11yLabel}
               </button>
-              <Button href={siteConfig.maxBooking} fullWidth size="md">
+              <Button href={site.maxBooking} fullWidth size="md">
                 Записаться онлайн
               </Button>
             </div>

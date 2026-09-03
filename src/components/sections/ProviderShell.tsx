@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { providerNav } from "@/data/providerNav";
+import { providerNav as defaultNav } from "@/data/providerNav";
 import { cn } from "@/lib/cn";
 
 export function ProviderShell({
@@ -9,6 +9,7 @@ export function ProviderShell({
   title,
   children,
   osnovnyeHref,
+  navItems = defaultNav,
 }: {
   basePath: string;
   currentId: string;
@@ -17,6 +18,7 @@ export function ProviderShell({
   children: React.ReactNode;
   /** Separate landing URL for «Основные сведения» (e.g. /obrazovanie) */
   osnovnyeHref?: string;
+  navItems?: { id: string; title: string }[];
 }) {
   const hrefFor = (id: string) =>
     id === "osnovnye" ? (osnovnyeHref ?? basePath) : `${basePath}/${id}`;
@@ -34,12 +36,9 @@ export function ProviderShell({
         <h1 className="section-title max-w-4xl">{title}</h1>
 
         <div className="section-block grid gap-10 lg:grid-cols-[280px_1fr] lg:items-start">
-          <nav
-            className="lg:sticky lg:top-32"
-            aria-label="Разделы сведений"
-          >
+          <nav className="lg:sticky lg:top-32" aria-label="Разделы сведений">
             <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0">
-              {providerNav.map((item) => {
+              {navItems.map((item) => {
                 const active = item.id === currentId;
                 return (
                   <li key={item.id} className="shrink-0 lg:shrink">
@@ -69,13 +68,13 @@ export function ProviderShell({
   );
 }
 
-export function DocList({ items }: { items: { label: string; href: string }[] }) {
+export function DocList({ items }: { items: { label: string; href?: string }[] }) {
   return (
     <ul className="space-y-3">
       {items.map((item) => (
-        <li key={item.href}>
+        <li key={`${item.label}-${item.href || ""}`}>
           <a
-            href={item.href}
+            href={item.href || "#"}
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-brand-blue underline-offset-2 hover:underline"

@@ -7,7 +7,9 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { matkapitalSteps, siteConfig } from "@/data/content";
 import { Reveal } from "@/components/ui/Reveal";
 
-export function Matkapital() {
+export function Matkapital({
+  steps = matkapitalSteps,
+}: { steps?: typeof matkapitalSteps } = {}) {
   return (
     <Section
       id="matkapital"
@@ -48,7 +50,7 @@ export function Matkapital() {
         <div className="relative">
           <div className="absolute top-3 bottom-3 left-[18px] w-px bg-brand-blue/35 md:left-[22px]" />
           <div className="space-y-4 md:space-y-5">
-            {matkapitalSteps.map((step, i) => (
+            {steps.map((step, i) => (
               <Reveal key={step.step} delay={i * 0.06}>
                 <div className="relative flex gap-5 pl-12 md:pl-14" data-cursor-hover>
                   <div className="absolute left-0 flex h-9 w-9 items-center justify-center rounded-full bg-brand-orange text-sm font-bold md:h-11 md:w-11">

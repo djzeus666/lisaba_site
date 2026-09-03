@@ -38,6 +38,15 @@ yarn-error.log*
 .env*
 !.env.example
 
+# payload uploads / local db
+/media/*
+!/media/.gitkeep
+/data/*
+!/data/.gitignore
+!/data/.gitkeep
+*.db
+*.db-*
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { siteConfig, topBarLinks } from "@/data/content";
+import { useCms } from "@/components/providers/CmsProvider";
 
 export function TopBar() {
+  const { site, nav } = useCms();
+  const { topBarLinks } = nav;
+
   return (
     <div className="relative z-[60] hidden border-b border-brand-blue/10 bg-brand-white md:fixed md:inset-x-0 md:top-0 md:block">
       <div className="section-container flex h-9 max-w-7xl items-center justify-between gap-4 text-xs text-brand-black/55">
@@ -18,7 +21,7 @@ export function TopBar() {
                   ·
                 </span>
               )}
-              {"external" in link && link.external ? (
+              {"external" in link && (link as { external?: boolean }).external ? (
                 <a
                   href={link.href}
                   target="_blank"
@@ -39,7 +42,7 @@ export function TopBar() {
           ))}
         </nav>
         <p className="hidden shrink-0 xl:block">
-          {siteConfig.addressShort} · {siteConfig.phone}
+          {site.addressShort} · {site.phone}
         </p>
       </div>
     </div>

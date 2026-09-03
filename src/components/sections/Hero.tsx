@@ -16,6 +16,17 @@ const iconMap: Record<string, LucideIcon> = {
 
 const iconStroke = 1.75;
 
+const defaultSubtitle =
+  "ЛИСАБА — центр когнитивного и сенсорно-поведенческого развития. Научный подход, заботливые специалисты и индивидуальные программы для каждого ребёнка.";
+
+type Props = {
+  site?: typeof siteConfig;
+  badges?: typeof heroBadges;
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+};
+
 function HeroBadgeTile({
   label,
   icon: Icon,
@@ -63,7 +74,16 @@ function HeroBadgeTile({
   );
 }
 
-export function Hero() {
+export function Hero({
+  site = siteConfig,
+  badges = heroBadges,
+  eyebrow,
+  title,
+  subtitle,
+}: Props = {}) {
+  const resolvedEyebrow = eyebrow ?? `Центр развития · ${site.city}`;
+  const resolvedSubtitle = subtitle ?? defaultSubtitle;
+
   return (
     <section className="relative flex min-h-[calc(100dvh-4rem)] items-start overflow-hidden pt-[5.25rem] pb-14 md:min-h-[calc(100dvh-7rem)] md:items-center md:pt-[7.5rem] md:pb-20">
       <div className="mesh-gradient absolute inset-0 -z-10" />
@@ -85,30 +105,34 @@ export function Hero() {
           <Reveal>
             <span className="inline-flex h-9 items-center gap-2 rounded-full border border-brand-blue/20 bg-brand-blue/5 px-4 text-xs font-semibold tracking-[0.14em] text-brand-blue uppercase">
               <span className="h-1.5 w-1.5 rounded-full bg-accent-green" />
-              Центр развития · {siteConfig.city}
+              {resolvedEyebrow}
             </span>
           </Reveal>
 
           <Reveal delay={0.1}>
             <h1 className="mt-5 text-4xl leading-[1.08] font-extrabold tracking-tight text-brand-black sm:text-5xl lg:text-[3.25rem] lg:leading-[1.08]">
-              Путь к{" "}
-              <span className="text-gradient-blue">гармоничному</span>{" "}
-              развитию вашего ребёнка
+              {title ? (
+                title
+              ) : (
+                <>
+                  Путь к{" "}
+                  <span className="text-gradient-blue">гармоничному</span>{" "}
+                  развитию вашего ребёнка
+                </>
+              )}
             </h1>
           </Reveal>
 
           <Reveal delay={0.2}>
             <p className="mt-5 max-w-lg text-base leading-relaxed font-light text-brand-black/65 sm:text-lg">
-              ЛИСАБА — центр когнитивного и сенсорно-поведенческого развития.
-              Научный подход, заботливые специалисты и индивидуальные программы
-              для каждого ребёнка.
+              {resolvedSubtitle}
             </p>
           </Reveal>
 
           <Reveal delay={0.3}>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Button
-                href={siteConfig.maxBooking}
+                href={site.maxBooking}
                 size="lg"
                 icon={<ArrowRight className="h-4 w-4" />}
               >
@@ -130,8 +154,8 @@ export function Hero() {
             className="mx-auto w-full max-w-[440px] rounded-3xl border border-brand-blue/10 bg-brand-white/75 p-6 shadow-elevated backdrop-blur-sm xl:p-7"
           >
             <div className="grid grid-cols-2 gap-4">
-              {heroBadges.map((badge, i) => {
-                const Icon = iconMap[badge.icon];
+              {badges.map((badge, i) => {
+                const Icon = iconMap[badge.icon] ?? Shield;
                 return (
                   <HeroBadgeTile
                     key={badge.id}
@@ -148,8 +172,8 @@ export function Hero() {
 
         {/* Mobile badges */}
         <div className="grid grid-cols-2 gap-3 lg:hidden">
-          {heroBadges.map((badge, i) => {
-            const Icon = iconMap[badge.icon];
+          {badges.map((badge, i) => {
+            const Icon = iconMap[badge.icon] ?? Shield;
             return (
               <HeroBadgeTile
                 key={badge.id}
