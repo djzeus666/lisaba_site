@@ -75,6 +75,7 @@ export interface Config {
     'equipment-items': EquipmentItem;
     'matkapital-steps': MatkapitalStep;
     reviews: Review;
+    leads: Lead;
     'provider-sections': ProviderSection;
     pages: Page;
     'payload-kv': PayloadKv;
@@ -92,6 +93,7 @@ export interface Config {
     'equipment-items': EquipmentItemsSelect<false> | EquipmentItemsSelect<true>;
     'matkapital-steps': MatkapitalStepsSelect<false> | MatkapitalStepsSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
     'provider-sections': ProviderSectionsSelect<false> | ProviderSectionsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -108,12 +110,14 @@ export interface Config {
     organization: Organization;
     navigation: Navigation;
     homepage: Homepage;
+    'notification-settings': NotificationSetting;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     organization: OrganizationSelect<false> | OrganizationSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     homepage: HomepageSelect<false> | HomepageSelect<true>;
+    'notification-settings': NotificationSettingsSelect<false> | NotificationSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -304,6 +308,26 @@ export interface Review {
   createdAt: string;
 }
 /**
+ * Заявки с формы на сайте. Новые приходят в Telegram и на email.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  name: string;
+  phone: string;
+  childAge?: string | null;
+  message?: string | null;
+  status: 'new' | 'in_progress' | 'done' | 'spam';
+  source: 'contact_form' | 'admin';
+  adminNote?: string | null;
+  notifiedTelegram?: boolean | null;
+  notifiedEmail?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "provider-sections".
  */
@@ -473,6 +497,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'reviews';
         value: number | Review;
+      } | null)
+    | ({
+        relationTo: 'leads';
+        value: number | Lead;
       } | null)
     | ({
         relationTo: 'provider-sections';
@@ -668,6 +696,23 @@ export interface ReviewsSelect<T extends boolean = true> {
   phone?: T;
   status?: T;
   source?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  childAge?: T;
+  message?: T;
+  status?: T;
+  source?: T;
+  adminNote?: T;
+  notifiedTelegram?: T;
+  notifiedEmail?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1064,6 +1109,32 @@ export interface Homepage {
   createdAt?: string | null;
 }
 /**
+ * Куда слать новые заявки. Токен бота и SMTP-пароль задаются в .env на сервере (секреты).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-settings".
+ */
+export interface NotificationSetting {
+  id: number;
+  telegramEnabled?: boolean | null;
+  /**
+   * Напишите боту /start, затем узнайте chat_id через @userinfobot или getUpdates. Env: TELEGRAM_BOT_TOKEN
+   */
+  telegramChatId?: string | null;
+  emailEnabled?: boolean | null;
+  /**
+   * SMTP настраивается в .env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
+   */
+  notifyEmails?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -1310,6 +1381,24 @@ export interface HomepageSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-settings_select".
+ */
+export interface NotificationSettingsSelect<T extends boolean = true> {
+  telegramEnabled?: T;
+  telegramChatId?: T;
+  emailEnabled?: T;
+  notifyEmails?:
+    | T
+    | {
+        email?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

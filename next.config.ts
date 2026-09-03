@@ -8,6 +8,13 @@ const dirname = path.dirname(__filename);
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  serverExternalPackages: ["libsql", "@libsql/client"],
+  outputFileTracingIncludes: {
+    "/**/*": [
+      "./node_modules/@libsql/**/*",
+      "./node_modules/libsql/**/*",
+    ],
+  },
   images: {
     localPatterns: [
       {

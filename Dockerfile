@@ -24,6 +24,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/media ./media
 
+# Native SQLite bindings are not always traced into standalone output
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/libsql ./node_modules/libsql
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@libsql ./node_modules/@libsql
+
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000

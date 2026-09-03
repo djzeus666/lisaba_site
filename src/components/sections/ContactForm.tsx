@@ -15,10 +15,36 @@ export function ContactForm({
   site = siteConfig,
 }: { site?: typeof siteConfig } = {}) {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setError("");
+    setSending(true);
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.get("name"),
+          phone: data.get("phone"),
+          childAge: data.get("child-age"),
+          message: data.get("message"),
+        }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(json.error || "Ошибка отправки");
+      setSubmitted(true);
+      form.reset();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось отправить заявку");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -66,8 +92,20 @@ export function ContactForm({
                 <Textarea id="message" name="message" placeholder="Расскажите, с чем нужна помощь" />
               </FormField>
 
-              <Button type="submit" size="lg" fullWidth icon={<Send className="h-4 w-4" />}>
-                Отправить заявку
+              {error ? (
+                <p className="text-sm font-medium text-red-600" role="alert">
+                  {error}
+                </p>
+              ) : null}
+
+              <Button
+                type="submit"
+                size="lg"
+                fullWidth
+                disabled={sending}
+                icon={<Send className="h-4 w-4" />}
+              >
+                {sending ? "Отправка…" : "Отправить заявку"}
               </Button>
 
               <p className="text-center text-xs leading-relaxed text-brand-black/45">

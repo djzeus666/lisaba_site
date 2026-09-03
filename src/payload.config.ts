@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import sharp from "sharp";
 
 import { EquipmentItems } from "./collections/EquipmentItems";
+import { Leads } from "./collections/Leads";
 import { MatkapitalSteps } from "./collections/MatkapitalSteps";
 import { Media } from "./collections/Media";
 import { Pages } from "./collections/Pages";
@@ -17,6 +18,7 @@ import { Specialists } from "./collections/Specialists";
 import { Users } from "./collections/Users";
 import { Homepage } from "./globals/Homepage";
 import { Navigation } from "./globals/Navigation";
+import { NotificationSettings } from "./globals/NotificationSettings";
 import { Organization } from "./globals/Organization";
 import { SiteSettings } from "./globals/SiteSettings";
 
@@ -42,10 +44,11 @@ export default buildConfig({
     EquipmentItems,
     MatkapitalSteps,
     Reviews,
+    Leads,
     ProviderSections,
     Pages,
   ],
-  globals: [SiteSettings, Organization, Navigation, Homepage],
+  globals: [SiteSettings, Organization, Navigation, Homepage, NotificationSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "",
