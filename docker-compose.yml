@@ -1,0 +1,14 @@
+services:
+  lisaba-site:
+    build: .
+    container_name: lisaba-site
+    restart: unless-stopped
+    ports:
+      - "3080:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - lisaba-reviews-data:/app/data
+
+volumes:
+  lisaba-reviews-data:

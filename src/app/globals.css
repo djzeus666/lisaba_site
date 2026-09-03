@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-white: #ffffff;
+  --color-brand-black: #373737;
+  --color-brand-orange: #f07c01;
+  --color-brand-blue: #029de0;
+  --color-accent-blue-light: #b4ddff;
+  --color-accent-green: #a5c926;
+  --color-accent-yellow: #fffd00;
+
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-soft: 0 4px 24px -4px rgb(2 157 224 / 0.08);
+  --shadow-card: 0 8px 32px -8px rgb(55 55 55 / 0.1);
+  --shadow-elevated: 0 20px 60px -20px rgb(55 55 55 / 0.15);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.75rem;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      scroll-padding-top: 7rem;
+    }
+  }
+
+  body {
+    @apply bg-brand-white text-brand-black antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  ::selection {
+    @apply bg-brand-blue/20 text-brand-black;
+  }
+}
+
+@layer utilities {
+  .section-padding {
+    @apply py-20 md:py-28;
+  }
+
+  .section-container {
+    @apply mx-auto w-full px-5 sm:px-6 lg:px-8;
+  }
+
+  .section-eyebrow {
+    @apply inline-block text-xs font-semibold tracking-[0.18em] text-brand-blue uppercase;
+  }
+
+  .section-title {
+    @apply mt-3 text-3xl leading-tight font-extrabold tracking-tight text-brand-black sm:text-4xl;
+  }
+
+  .section-description {
+    @apply mt-4 text-base leading-relaxed font-light text-brand-black/60 sm:text-lg;
+  }
+
+  .section-block {
+    @apply mt-12 md:mt-14;
+  }
+
+  .grid-cards {
+    @apply grid gap-6 lg:gap-8;
+  }
+
+  .mesh-gradient {
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 20%, rgb(180 221 255 / 0.45), transparent),
+      radial-gradient(ellipse 70% 50% at 80% 30%, rgb(2 157 224 / 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 50% 80%, rgb(165 201 38 / 0.06), transparent),
+      linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+  }
+
+  .text-gradient-blue {
+    @apply bg-gradient-to-r from-brand-blue to-brand-blue/70 bg-clip-text text-transparent;
+  }
+
+  .glass-header {
+    @apply border-b border-brand-blue/10 bg-brand-white/80 backdrop-blur-xl;
+  }
+
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2;
+  }
+}
+
+/* Accessibility: impaired vision mode */
+html.a11y-impaired {
+  font-size: 118%;
+  letter-spacing: 0.02em;
+  line-height: 1.75;
+}
+
+html.a11y-impaired body {
+  @apply bg-white text-black;
+}
+
+html.a11y-impaired .glass-header {
+  @apply border-black/20 bg-white;
+}
+
+html.a11y-impaired * {
+  text-shadow: none !important;
+}
+
+html.a11y-impaired .mesh-gradient {
+  background: #ffffff;
+}
+
+html.a11y-high-contrast {
+  --color-brand-black: #000000;
+  --color-brand-blue: #0066aa;
+  --color-brand-orange: #cc5500;
+}
+
+html.a11y-high-contrast body {
+  @apply bg-white text-black;
+}
+
+html.a11y-high-contrast a,
+html.a11y-high-contrast button {
+  text-decoration-thickness: 2px;
+}
+
+/* Custom cursor — hidden on touch devices via JS */
+@media (pointer: fine) {
+  body.custom-cursor-active {
+    cursor: none;
+  }
+
+  body.custom-cursor-active a,
+  body.custom-cursor-active button {
+    cursor: none;
+  }
+}
