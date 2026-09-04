@@ -1109,7 +1109,7 @@ export interface Homepage {
   createdAt?: string | null;
 }
 /**
- * Куда слать новые заявки. Токен бота и SMTP-пароль задаются в .env на сервере (секреты).
+ * Все настройки Telegram и Email для новых заявок с формы. Секреты хранятся в базе — не публикуйте их.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "notification-settings".
@@ -1118,19 +1118,37 @@ export interface NotificationSetting {
   id: number;
   telegramEnabled?: boolean | null;
   /**
-   * Напишите боту /start, затем узнайте chat_id через @userinfobot или getUpdates. Env: TELEGRAM_BOT_TOKEN
+   * Создайте бота у @BotFather и вставьте токен вида 123456:ABC-DEF...
+   */
+  telegramBotToken?: string | null;
+  /**
+   * Напишите боту /start, затем узнайте chat_id через @userinfobot или getUpdates.
    */
   telegramChatId?: string | null;
   emailEnabled?: boolean | null;
-  /**
-   * SMTP настраивается в .env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
-   */
   notifyEmails?:
     | {
         email: string;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Например smtp.yandex.ru, smtp.mail.ru, smtp.gmail.com
+   */
+  smtpHost?: string | null;
+  /**
+   * Обычно 587 (STARTTLS) или 465 (SSL)
+   */
+  smtpPort?: number | null;
+  smtpUser?: string | null;
+  /**
+   * Пароль приложения / пароль почтового ящика
+   */
+  smtpPass?: string | null;
+  /**
+   * Если пусто — используется SMTP логин
+   */
+  smtpFrom?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1392,6 +1410,7 @@ export interface HomepageSelect<T extends boolean = true> {
  */
 export interface NotificationSettingsSelect<T extends boolean = true> {
   telegramEnabled?: T;
+  telegramBotToken?: T;
   telegramChatId?: T;
   emailEnabled?: T;
   notifyEmails?:
@@ -1400,6 +1419,11 @@ export interface NotificationSettingsSelect<T extends boolean = true> {
         email?: T;
         id?: T;
       };
+  smtpHost?: T;
+  smtpPort?: T;
+  smtpUser?: T;
+  smtpPass?: T;
+  smtpFrom?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -25,6 +25,11 @@ import { SiteSettings } from "./globals/SiteSettings";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+const serverURL =
+  process.env.NEXT_PUBLIC_SERVER_URL ||
+  process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+  "http://localhost:3000";
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -51,7 +56,22 @@ export default buildConfig({
   globals: [SiteSettings, Organization, Navigation, Homepage, NotificationSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "",
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "",
+  serverURL,
+  // Without csrf whitelist, cookie auth is rejected after login behind nginx/IP
+  csrf: [
+    serverURL,
+    "http://109.73.203.62",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3080",
+  ],
+  cors: [
+    serverURL,
+    "http://109.73.203.62",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3080",
+  ],
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },

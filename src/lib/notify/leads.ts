@@ -10,6 +10,19 @@ type LeadLike = {
   createdAt?: string | null;
 };
 
+type NotifySettings = {
+  telegramEnabled?: boolean | null;
+  telegramBotToken?: string | null;
+  telegramChatId?: string | null;
+  emailEnabled?: boolean | null;
+  notifyEmails?: Array<{ email?: string | null } | null> | null;
+  smtpHost?: string | null;
+  smtpPort?: number | null;
+  smtpUser?: string | null;
+  smtpPass?: string | null;
+  smtpFrom?: string | null;
+};
+
 function formatLeadText(lead: LeadLike): string {
   const lines = [
     "🆕 Новая заявка с сайта ЛИСАБА",
@@ -29,11 +42,14 @@ function formatLeadText(lead: LeadLike): string {
   return lines.join("\n");
 }
 
-export async function sendTelegramLead(lead: LeadLike, chatId: string): Promise<boolean> {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  if (!token || !chatId) return false;
+export async function sendTelegramLead(
+  lead: LeadLike,
+  chatId: string,
+  botToken: string,
+): Promise<boolean> {
+  if (!botToken || !chatId) return false;
 
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -50,30 +66,33 @@ export async function sendTelegramLead(lead: LeadLike, chatId: string): Promise<
   return true;
 }
 
-export async function sendEmailLead(lead: LeadLike, to: string[]): Promise<boolean> {
+export async function sendEmailLead(
+  lead: LeadLike,
+  to: string[],
+  smtp: {
+    host: string;
+    port: number;
+    user: string;
+    pass: string;
+    from: string;
+  },
+): Promise<boolean> {
   if (!to.length) return false;
-
-  const host = process.env.SMTP_HOST;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const from = process.env.SMTP_FROM || user;
-  const port = Number(process.env.SMTP_PORT || 587);
-
-  if (!host || !user || !pass || !from) {
-    console.warn("SMTP not configured — skip email notification");
+  if (!smtp.host || !smtp.user || !smtp.pass || !smtp.from) {
+    console.warn("SMTP not configured in admin — skip email notification");
     return false;
   }
 
   const nodemailer = await import("nodemailer");
   const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.port === 465,
+    auth: { user: smtp.user, pass: smtp.pass },
   });
 
   await transporter.sendMail({
-    from,
+    from: smtp.from,
     to: to.join(", "),
     subject: `Заявка с сайта: ${lead.name || "без имени"} — ${lead.phone || ""}`,
     text: formatLeadText(lead),
@@ -82,20 +101,41 @@ export async function sendEmailLead(lead: LeadLike, to: string[]): Promise<boole
   return true;
 }
 
+function resolveTelegram(settings: NotifySettings) {
+  return {
+    token: settings.telegramBotToken || process.env.TELEGRAM_BOT_TOKEN || "",
+    chatId: settings.telegramChatId || "",
+  };
+}
+
+function resolveSmtp(settings: NotifySettings) {
+  const host = settings.smtpHost || process.env.SMTP_HOST || "";
+  const user = settings.smtpUser || process.env.SMTP_USER || "";
+  const pass = settings.smtpPass || process.env.SMTP_PASS || "";
+  const from = settings.smtpFrom || process.env.SMTP_FROM || user;
+  const port = Number(settings.smtpPort || process.env.SMTP_PORT || 587);
+  return { host, user, pass, from, port };
+}
+
 export async function notifyLeadCreated(lead: LeadLike, payload: Payload) {
-  const settings = await payload.findGlobal({
+  const settings = (await payload.findGlobal({
     slug: "notification-settings",
     depth: 0,
-  });
+  })) as NotifySettings;
 
   let telegramOk = false;
   let emailOk = false;
 
-  if (settings.telegramEnabled && settings.telegramChatId) {
-    try {
-      telegramOk = await sendTelegramLead(lead, String(settings.telegramChatId));
-    } catch (err) {
-      payload.logger.error({ err, msg: "Telegram notify failed" });
+  if (settings.telegramEnabled) {
+    const { token, chatId } = resolveTelegram(settings);
+    if (token && chatId) {
+      try {
+        telegramOk = await sendTelegramLead(lead, chatId, token);
+      } catch (err) {
+        payload.logger.error({ err, msg: "Telegram notify failed" });
+      }
+    } else {
+      payload.logger.warn("Telegram enabled but bot token or chat ID is missing");
     }
   }
 
@@ -103,8 +143,9 @@ export async function notifyLeadCreated(lead: LeadLike, payload: Payload) {
     const emails = (settings.notifyEmails || [])
       .map((row) => row?.email)
       .filter((email): email is string => Boolean(email));
+    const smtp = resolveSmtp(settings);
     try {
-      emailOk = await sendEmailLead(lead, emails);
+      emailOk = await sendEmailLead(lead, emails, smtp);
     } catch (err) {
       payload.logger.error({ err, msg: "Email notify failed" });
     }
